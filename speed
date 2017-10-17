@@ -1,0 +1,53 @@
+#!/bin/bash
+case "$1" in
+start)
+	echo "Starting Speeder................."
+	/serverspeeder/bin/serverSpeeder.sh start > /tmp/null
+	echo "Started Speeder................."
+	;;
+
+stop)
+	echo "Stoping Speeder.................."
+	/serverspeeder/bin/serverSpeeder.sh stop  > /tmp/null
+	echo "Stoped Speeder.................."
+	;;
+
+reload)
+	echo "Reloading Speeder Config File...."
+	/serverspeeder/bin/serverSpeeder.sh reload > /tmp/null
+	;;
+
+restart)
+	/serverspeeder/bin/serverSpeeder.sh stop > /tmp/null
+	echo "Stoped Speeder.................."
+	/serverspeeder/bin/serverSpeeder.sh start > /tmp/null
+	echo "Started Speeder................."
+	;;
+
+status)
+	/serverspeeder/bin/serverSpeeder.sh status
+	;;
+
+stats)
+	/serverspeeder/bin/serverSpeeder.sh stats
+	;;
+
+renewLic)
+	echo "Update license file.............."
+	/serverspeeder/bin/serverSpeeder.sh renewLic > /tmp/null
+	;;
+
+update)
+	echo "Updateing ServerSpeeder.........."
+	/serverspeeder/bin/serverSpeeder.sh update > /tmp/null
+	;;
+
+uninstall)
+	echo "Uinstalling ServerSpeeder........"
+	/serverspeeder/bin/serverSpeeder.sh uninstall
+	;;
+
+help)
+	/serverspeeder/bin/serverSpeeder.sh --help
+	;;
+esac
