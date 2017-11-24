@@ -1,6 +1,7 @@
 #!/bin/bash
 AEC_DIR=/var/lib/mysql/aec
 CUR_DATE=`date +%Y%m%d`
+#CUR_DATE=20171123
 DB_DIR=/var/lib/mysql/.bakup
 DB_SHOW=`mysql --defaults-file=/root/.my.cnf -e "show databases;"|sed '1d'|grep -viE "(information_schema|performance_schema|mysql|sys)"`
 
@@ -88,7 +89,7 @@ vipapps_all(){
 	gunzip /var/lib/mysql/cad-vipapps-${CUR_DATE}.sql.gz
 
 #Delete the old vipapp database;
-	#DATE_SHOW=`mysql --defaults-file=/root/.my.cnf -e "show databases;"|sed '1d'`
+	DATE_SHOW=`mysql --defaults-file=/root/.my.cnf -e "show databases;"|sed '1d'`
 
 	for i in $DATE_SHOW;
 do
@@ -99,7 +100,6 @@ do
 		fi
 	done
 	service mysql restart;
-
 #Import data;
 	start_tm=`date +%s%N`;
 	mysql --defaults-file=/root/.my.cnf -e "show databases;"
@@ -108,7 +108,7 @@ do
 	end_tm=`date +%s%N`;
 	use_tm=`echo $end_tm $start_tm | awk '{ print ($1 - $2) / 1000000000}'`
 	echo -e "\033[31m OK,Insert database use $use_tm S \033[0m"
-
+	
 #Check each table of the imported vipapps database;
 	TABLE=`mysql --defaults-file=/root/.my.cnf -e "show tables from vipapps;"|sed '1d'`
 	for table in $TABLE
@@ -116,8 +116,8 @@ do
 		#echo -e "\033[31m $table \033[0m"
 		mysql --defaults-file=/root/.my.cnf -e "use vipapps;check table $table EXTENDED"|grep --color=always "vipapps.${table}"|tee /var/log/database/vipapps_check.log
 	done
-
 }
+
 
 case $1 in 
 	insert)
@@ -132,7 +132,7 @@ case $1 in
 	vipapps)
 		vipapps_all
 		;;
-	all)
+	*)
 		date;
 		clean_old_cache&&insert_backupfile;check_data|tee /var/log/database/check.log
 		;;
