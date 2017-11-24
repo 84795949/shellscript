@@ -6,10 +6,10 @@ DB_SHOW=`mysql --defaults-file=/root/.my.cnf -e "show databases;"|sed '1d'|grep 
 
 insert_backupfile(){
 #Download the vipapps database backup file from the local backup server(192.168.1.232)
-	scp -P 22522 root@192.168.1.232:/backup/cad_pcw365_com/database/fullbackup/cad-aec-big-table-$CUR_DATE.tar.gz $DB_DIR
+#	scp -P 22522 root@192.168.1.232:/backup/cad_pcw365_com/database/fullbackup/cad-aec-big-table-$CUR_DATE.tar.gz $DB_DIR
 	scp -P 22522 root@192.168.1.232:/backup/cad_pcw365_com/database/fullbackup/cad-other-without-big-table-$CUR_DATE.sql.gz $DB_DIR
 	cd $DB_DIR
-	tar zxvf cad-aec-big-table-$CUR_DATE.tar.gz
+#	tar zxvf cad-aec-big-table-$CUR_DATE.tar.gz
 	gunzip cad-other-without-big-table-$CUR_DATE.sql.gz
 
 #Insert other databases;
@@ -49,8 +49,8 @@ clean_old_cache(){
 #Delect Old Files;
 	find $DB_DIR -name *.gz -exec rm -rf '{}' \;
 	find $DB_DIR -name *.sql -exec rm -rf '{}' \;
-	find $AEC_DIR -name *.data -exec rm -rf '{}' \;
-	find $AEC_DIR -name *.form -exec rm -rf '{}' \;
+	find $AEC_DIR -name *.data -exec rm -rf '{}' \; 2 >& /var/log/database/error.log
+	find $AEC_DIR -name *.form -exec rm -rf '{}' \; 2 >& /var/log/database/error.log
 	rm -rf $DB_DIR/aec_big_table;
 
 #Drop databases;
@@ -75,8 +75,8 @@ check_data(){
 		TABLE=`mysql --defaults-file=/root/.my.cnf -e "show tables from $i;"|sed '1d'`
 		for table in $TABLE
 		do
-			echo -e "\033[31m $table \033[0m"
-			mysql --defaults-file=/root/.my.cnf -e "use $i;check table $table EXTENDED"
+			#echo -e "\033[31m $table \033[0m"
+			mysql --defaults-file=/root/.my.cnf -e "use $i;check table $table EXTENDED"|grep --color=always "$i.$table"
 		done
 	done
 }
@@ -88,14 +88,14 @@ vipapps_all(){
 	gunzip /var/lib/mysql/cad-vipapps-${CUR_DATE}.sql.gz
 
 #Delete the old vipapp database;
-	DATE_SHOW=`mysql --defaults-file=/root/.my.cnf -e "show databases;"|sed '1d'`
+	#DATE_SHOW=`mysql --defaults-file=/root/.my.cnf -e "show databases;"|sed '1d'`
 
 	for i in $DATE_SHOW;
-	do
+do
 		if [ $i = vipapps ];then
 			mysql --defaults-file=/root/.my.cnf -e "drop database vipapps"
 			echo -e "\033[31m old vipapps db delected! \033[0m"
-			break
+			break;
 		fi
 	done
 	service mysql restart;
@@ -113,8 +113,8 @@ vipapps_all(){
 	TABLE=`mysql --defaults-file=/root/.my.cnf -e "show tables from vipapps;"|sed '1d'`
 	for table in $TABLE
 	do
-		echo -e "\033[31m $table \033[0m"
-		mysql --defaults-file=/root/.my.cnf -e "use vipapps;check table $table EXTENDED"
+		#echo -e "\033[31m $table \033[0m"
+		mysql --defaults-file=/root/.my.cnf -e "use vipapps;check table $table EXTENDED"|grep --color=always "vipapps.${table}"|tee /var/log/database/vipapps_check.log
 	done
 
 }
@@ -127,12 +127,13 @@ case $1 in
 		clean_old_cache
 		;;
 	check)
-		check_data
+		check_data|tee /var/log/database/check.log
 		;;
 	vipapps)
 		vipapps_all
 		;;
 	all)
-		clean_old_cache && insert_backupfile && check_data
+		date;
+		clean_old_cache&&insert_backupfile;check_data|tee /var/log/database/check.log
 		;;
 esac
