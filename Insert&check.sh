@@ -85,14 +85,16 @@ check_data(){
 vipapps_all(){
 #Download the vipapps database backup file from the local backup server(192.168.1.232);
 	find /var/lib/mysql/ -name "cad-vipapps*" -exec rm -rf '{}' \;
-	scp -P 22522 root@192.168.1.232:/backup/cad_pcw365_com/database/fullbackup/cad-vipapps-${CUR_DATE}.sql.gz /var/lib/mysql/
-	gunzip /var/lib/mysql/cad-vipapps-${CUR_DATE}.sql.gz
+	echo -e "\033[31m Start download data...... \033[0m"
+	scp -P 22522 root@192.168.1.232:/backup/cad_pcw365_com/database/fullbackup/cad-vipapps-${CUR_DATE}.sql.gz /var/lib/mysql/;
+	gunzip /var/lib/mysql/cad-vipapps-${CUR_DATE}.sql.gz;
+	ls -ltrh /var/lib/mysql/cad-vipapps*;
 
 #Delete the old vipapp database;
 	DATE_SHOW=`mysql --defaults-file=/root/.my.cnf -e "show databases;"|sed '1d'`
 
 	for i in $DATE_SHOW;
-do
+	do
 		if [ $i = vipapps ];then
 			mysql --defaults-file=/root/.my.cnf -e "drop database vipapps"
 			echo -e "\033[31m old vipapps db delected! \033[0m"
@@ -103,7 +105,7 @@ do
 #Import data;
 	start_tm=`date +%s%N`;
 	mysql --defaults-file=/root/.my.cnf -e "show databases;"
-	echo -e "\033[31m Start import date...... \033[0m \c"
+	echo -e "\033[31m Start import date...... \033[0m \c";
 	mysql --defaults-file=/root/.my.cnf -e "source /var/lib/mysql/cad-vipapps-${CUR_DATE}.sql;"
 	end_tm=`date +%s%N`;
 	use_tm=`echo $end_tm $start_tm | awk '{ print ($1 - $2) / 1000000000}'`
@@ -114,10 +116,15 @@ do
 	for table in $TABLE
 	do
 		#echo -e "\033[31m $table \033[0m"
-		mysql --defaults-file=/root/.my.cnf -e "use vipapps;check table $table EXTENDED"|grep --color=always "vipapps.${table}"|tee /var/log/database/vipapps_check.log
+		mysql --defaults-file=/root/.my.cnf -e "use vipapps;check table $table EXTENDED"|grep --color=always "vipapps.${table}"
 	done
 }
 
+ali_status(){
+	date;
+	echo;
+	mysql -h 106.15.46.212 -uroot -p -e "show slave status\G" > sql1;mysql -h 106.15.46.212 -uroot -p -e "show slave status\G" > sql2;diff sql1 sql2;rm -rf sql*; mysql -h 106.15.46.212 -uroot -p -e "show slave status\G;"|grep -A 1 "Slave_IO_Running"	
+}
 
 case $1 in 
 	insert)
@@ -127,13 +134,16 @@ case $1 in
 		clean_old_cache
 		;;
 	check)
-		check_data|tee /var/log/database/check.log
+		check_data|tee /var/log/database/other_check-${CUR_DATE}.log
 		;;
 	vipapps)
-		vipapps_all
+		vipapps_all|tee /var/log/database/vipapps_check-${CUR_DATE}.log
+		;;
+	status)
+		ali_status|tee /var/log/database/ali_status-${CUR_DATE}.log
 		;;
 	*)
 		date;
-		clean_old_cache&&insert_backupfile;check_data|tee /var/log/database/check.log
+		clean_old_cache&&insert_backupfile;check_data
 		;;
 esac
