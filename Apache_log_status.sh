@@ -22,7 +22,7 @@ select_log(){
 	Start=`cat $LOG |grep ${StartDate}|head -n 1|awk '{print $4$5}'|tr -cd "[0-9]"`
 	read -p "请输入选取日志的结束时间(yyyy:hh:mm): " EndDate
 	End=`cat $LOG |grep ${EndDate}|tail -n 1|awk '{print $4$5}'|tr -cd "[0-9]"`
-	sed -n "/$StartDate:${Start:11:2}/,/$EndDate:${End:11:2}/p" $LOG &> $DIR/${Server}_apache_${StartDate:5:5}-${EndDate:5:5}.log
+	sed -n "/$StartDate:${Start:11:2}/,/$EndDate:${End:11:2}/p" $LOG &> $DIR/apache_${StartDate:5:5}-${EndDate:5:5}.log
 	echo 截取日志另存为: $DIR/apache_${StartDate:5:5}-${EndDate:5:5}.log
 	echo $DIR/apache_${StartDate:5:5}-${EndDate:5:5}.log > $DIR/.log
 }
