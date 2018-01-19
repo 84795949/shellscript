@@ -1,4 +1,4 @@
-yum -y install ncurses* libtermcap* gcc
+yum -y install ncurses* libtermcap* gcc gcc-c++
 useradd  -s /sbin/nologin  mysql
 #wget http://downloads.mysql.com/archives/mysql-5.1/mysql-5.1.54.tar.gz
 mkdir /home/server/mysql5 -p
