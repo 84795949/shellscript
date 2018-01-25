@@ -1,0 +1,22 @@
+yum install -y docker-io
+rm -rf /usr/local/bin/docker
+rm -rf /usr/bin/docker
+curl -sSL -O https://get.docker.com/builds/Linux/x86_64/docker-1.9.1 && chmod +x docker-1.9.1 && mv docker-1.9.1 /usr/local/bin/docker
+cp /usr/local/bin/docker /usr/bin/
+service docker restart
+docker version
+Client:
+ Version:      1.9.1
+ API version:  1.21
+ Go version:   go1.4.3
+ Git commit:   a34a1d5
+ Built:        Fri Nov 20 17:56:04 UTC 2015
+ OS/Arch:      linux/amd64
+
+Server:
+ Version:      1.9.1
+ API version:  1.21
+ Go version:   go1.4.3
+ Git commit:   a34a1d5
+ Built:        Fri Nov 20 17:56:04 UTC 2015
+ OS/Arch:      linux/amd64
