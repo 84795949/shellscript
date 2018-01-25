@@ -1,3 +1,14 @@
+rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+rpm -Uvh http://www.elrepo.org/elrepo-release-6-6.el6.elrepo.noarch.rpm
+rpm -Uvh http://www.elrepo.org/elrepo-release-6-8.el6.elrepo.noarch.rpm
+yum --enablerepo=elrepo-kernel install kernel-lt -y
+
+cat /etc/grub.conf 
+cp /etc/grub.conf /etc/grub.conf_bak
+vim /etc/grub.conf
+reboot
+uname -r
+
 yum install -y docker-io
 rm -rf /usr/local/bin/docker
 rm -rf /usr/bin/docker
