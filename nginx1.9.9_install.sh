@@ -4,17 +4,17 @@ read -p "Please Input Isntall Dir: " INSTALL_DIR
 if [ ! -d $INSTALL_DIR ];then
 	mkdir $INSTALL_DIR -p
 fi
-ubnutu(){
+ubnutu() {
     apt-get -y update
     apt-get install -y build-essential libtool install libpcre3 libpcre3-dev zlib1g-dev openssl
 }
 
-centos(){
+centos() {
     yum -y update
     yum install -y pcre pcre-devel libtool openssl openssl-devel 
 }
 
-making(){
+making() {
 cd $INSTALL_DIR
 wget http://nginx.org/download/nginx-1.9.9.tar.gz
 tar zxvf nginx-1.9.9.tar.gz 
@@ -22,7 +22,9 @@ cd nginx-1.9.9/
 ./configure --prefix=$INSTALL_DIR
 make && make install
 ln -s $INSTALL_DIR/sbin/nginx /usr/bin/nginx
+}
 
+ubuntu_service() {
 cat << EOF >> /etc/init.d/nginx
 #!/bin/sh
 
@@ -37,7 +39,7 @@ cat << EOF >> /etc/init.d/nginx
 ### END INIT INFO
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-DAEMON=/data/app/nginx/sbin/nginx
+DAEMON=/usr/bin/nginx
 NAME=nginx
 DESC=nginx
 
@@ -213,18 +215,112 @@ esac
 EOF
 chmod +x /etc/init.d/nginx
 cd /etc/init.d/
+sed -i "s/^#pid/^pid/g" $INSTALL_DIR/conf/nginx.conf
 update-rc.d nginx defaults
 systemctl daemon-reload
 service nginx status
 rm -rf $INSTALL_DIR/nginx-1.9.9*
 }
 
+centos_service() {
+cat << EOF >> /etc/init.d/nginx
+#!/bin/bash 
+# chkconfig: - 18 21 
+# description: http service. 
+# Source Function Library 
+. /etc/init.d/functions
+# Nginx Settings 
+  
+NGINX_SBIN="/usr/bin/nginx"
+NGINX_CONF="/app/nginx/conf/nginx.conf"
+NGINX_PID="/app/nginx/logs/nginx.pid"
+RETVAL=0 
+prog="Nginx"
+  
+#Source networking configuration 
+. /etc/sysconfig/network
+# Check networking is up 
+[ ${NETWORKING} = "no" ] && exit 0 
+[ -x $NGINX_SBIN ] || exit 0 
+  
+start() { 
+        echo -n $"Starting $prog: "
+        touch /var/lock/subsys/nginx
+        daemon $NGINX_SBIN -c $NGINX_CONF 
+        RETVAL=$? 
+        echo
+        return $RETVAL 
+} 
+  
+stop() { 
+        echo -n $"Stopping $prog: "
+        killproc -p $NGINX_PID $NGINX_SBIN -TERM 
+        rm -rf /var/lock/subsys/nginx /var/run/nginx.pid 
+        RETVAL=$? 
+        echo
+        return $RETVAL 
+} 
+
+  
+reload(){ 
+        echo -n $"Reloading $prog: "
+        killproc -p $NGINX_PID $NGINX_SBIN -HUP 
+        RETVAL=$? 
+        echo
+        return $RETVAL 
+} 
+  
+restart(){ 
+        stop 
+        start 
+} 
+  
+configtest(){ 
+    $NGINX_SBIN -c $NGINX_CONF -t 
+    return 0 
+} 
+  
+case "$1" in
+  start) 
+        start 
+        ;; 
+  stop) 
+        stop 
+        ;; 
+  reload) 
+        reload 
+        ;; 
+  restart) 
+        restart 
+        ;; 
+  configtest) 
+        configtest 
+        ;; 
+  *) 
+        echo $"Usage: $0 {start|stop|reload|restart|configtest}"
+        RETVAL=1 
+esac
+  
+exit $RETVAL
+EOF
+sed -i "s/^#pid/^pid/g" $INSTALL_DIR/conf/nginx.conf
+sed -i "s/\/app\/nginx\//'${INSTALL_DIR}'/g" /etc/init.d/nginx
+chmod 755 /etc/init.d/nginx
+cd /etc/init.d/
+chkconfig --add nginx
+chkconfig nginx on
+service nginx start
+rm -rf $INSTALL_DIR/nginx-1.9.9*
+}
+
 if [ ! -f /etc/redhat-release ];then
     cat /etc/redhat-release
     centos;
-    making
+    making;
+    centos_service
 else
     lsb_release;
     ubuntu;
-    making
+    making;
+    ubuntu_service
 fi
