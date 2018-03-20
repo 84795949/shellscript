@@ -1,11 +1,20 @@
 #!/bin/bash
 read -p "Please Input Isntall Dir: " INSTALL_DIR
+
 if [ ! -d $INSTALL_DIR ];then
-	mkdir $INSTALL_DIR
+	mkdir $INSTALL_DIR -p
 fi
-echo $INSTALL_DIR
-apt-get update
-apt-get install -y build-essential libtool install libpcre3 libpcre3-dev zlib1g-dev openssl
+ubnutu(){
+    apt-get -y update
+    apt-get install -y build-essential libtool install libpcre3 libpcre3-dev zlib1g-dev openssl
+}
+
+centos(){
+    yum -y update
+    yum install -y pcre pcre-devel libtool openssl openssl-devel 
+}
+
+making(){
 cd $INSTALL_DIR
 wget http://nginx.org/download/nginx-1.9.9.tar.gz
 tar zxvf nginx-1.9.9.tar.gz 
@@ -207,3 +216,15 @@ cd /etc/init.d/
 update-rc.d nginx defaults
 systemctl daemon-reload
 service nginx status
+rm -rf $INSTALL_DIR/nginx-1.9.9*
+}
+
+if [ ! -f /etc/redhat-release ];then
+    cat /etc/redhat-release
+    centos;
+    making
+else
+    lsb_release;
+    ubuntu;
+    making
+fi
