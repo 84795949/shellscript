@@ -314,13 +314,13 @@ rm -rf $INSTALL_DIR/nginx-1.9.9*
 }
 
 if [ ! -f /etc/redhat-release ];then
-    cat /etc/redhat-release
-    centos;
-    making;
-    centos_service
-else
     lsb_release;
     ubuntu;
     making;
     ubuntu_service
+else
+    cat /etc/redhat-release
+    centos;
+    making;
+    centos_service
 fi
