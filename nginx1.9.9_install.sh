@@ -4,9 +4,9 @@ read -p "Please Input Isntall Dir: " INSTALL_DIR
 if [ ! -d $INSTALL_DIR ];then
 	mkdir $INSTALL_DIR -p
 fi
-ubnutu() {
+ubuntu() {
     apt-get -y update
-    apt-get install -y build-essential libtool install libpcre3 libpcre3-dev zlib1g-dev openssl
+    apt-get install -y build-essential libtool libpcre3 libpcre3-dev zlib1g-dev openssl
 }
 
 centos() {
@@ -314,7 +314,7 @@ rm -rf $INSTALL_DIR/nginx-1.9.9*
 }
 
 if [ ! -f /etc/redhat-release ];then
-    lsb_release;
+    lsb_release -a;
     ubuntu;
     making;
     ubuntu_service
