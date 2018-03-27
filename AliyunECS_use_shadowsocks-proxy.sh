@@ -15,7 +15,7 @@ cat <<EOF>> /etc/shadowscok.json
     "workers": 5
 }
 EOF
-sslocal -c /root/shadowscok.json 
+sslocal -c /etc/shadowscok.json 
 yum -y install proxychains
 sed -i "s/4.2.2.2/8.8.8.8/g" /bin/proxyresolv
 echo "127.0.0.1 9050" >> /etc/proxychains.conf
