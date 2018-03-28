@@ -57,5 +57,5 @@ chmod +x /etc/init.d/mysqld
 update-rc.d mysqld defaults
 update-rc.d mysqld start 2 3 4 5 . stop 0 1 6
 
-service mysql start
-service mysql status
+service mysqld start
+service mysqld status
