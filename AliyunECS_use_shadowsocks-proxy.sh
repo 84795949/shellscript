@@ -18,5 +18,5 @@ EOF
 sslocal -c /etc/shadowscok.json 
 yum -y install proxychains
 sed -i "s/4.2.2.2/8.8.8.8/g" /bin/proxyresolv
-echo "127.0.0.1 9050" >> /etc/proxychains.conf
+echo "socks5 127.0.0.1 9050" >> /etc/proxychains.conf
 proxychains curl www.google.com
