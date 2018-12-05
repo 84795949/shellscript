@@ -1,4 +1,5 @@
 #!/bin/bash
+# eg: bash youknow.sh Tokyo
 
 url=${1}
 mkdir -p ${url}
