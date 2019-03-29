@@ -10,6 +10,6 @@
 
 <html>
   <link rel="stylesheet" type="text/css" href="./player/asciinema-player.css" />
-  <asciinema-player src="./player/player.cast cols="146" rows="42"></asciinema-player>
+  <asciinema-player src="./player/player.cast" cols="146" rows="42"></asciinema-player>
   <script src="./player/asciinema-player.js"></script>
 </html>
